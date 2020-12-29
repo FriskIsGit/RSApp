@@ -19,7 +19,10 @@ public class GeneratorDecryptor {
             BigInteger e = new BigInteger(eDisplacement);
             for (; e.compareTo(Fi) < 0; e = e.add(new BigInteger("1"))) {
                 //choosing latter for security purposes <->
-                if (getBigGCD(e, Fi).equals(BigInteger.valueOf(1))) break;
+                if(isPrime(e,128) && !isDivisible(Fi,e)){
+                    break;
+                }
+                //if (getBigGCD(e, Fi).equals(BigInteger.valueOf(1))) break;
             }
             BigInteger d = findD(e, Fi);
             System.out.println("p : " + p);
@@ -41,6 +44,13 @@ public class GeneratorDecryptor {
                 }
             }
         }
+    }
+    public static boolean isDivisible(BigInteger number,BigInteger divisor){
+        BigInteger quotient = number.divide(divisor);
+        if(number.subtract(divisor.multiply(quotient)).equals(BigInteger.valueOf(0))){
+            return true;
+        }
+        else return false;
     }
     public static String decrypt(BigInteger d, BigInteger N, String msg) {
         StringBuilder decryptedString = new StringBuilder();
