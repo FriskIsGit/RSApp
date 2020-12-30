@@ -7,11 +7,11 @@ public class GeneratorDecryptor {
         Scanner input = new Scanner(System.in);
         boolean loopMsg;
         while(true) {
-            System.out.println("Insert displacement of e: ");
-            String eDisplacement = input.nextLine();
-            System.out.println("Recommended length 2*e: ");
+            System.out.println("Prime number length: ");
             String strLength = input.nextLine();
             int length = Integer.parseInt(strLength);
+            System.out.println("Insert displacement of e: ");
+            String eDisplacement = input.nextLine();
             BigInteger p = generatePrime(length);
             BigInteger q = generatePrime(length);
             BigInteger N = p.multiply(q);

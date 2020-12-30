@@ -8,32 +8,61 @@ public class App {
     public void display() {
         JFrame frame = new JFrame();
 
-        addLabelToFrame(frame, "2<length<2048", 70, 5, 140, 20);
-        addLabelToFrame(frame, "Bit length of primes", 70, 20, 200, 20);
-        addLabelToFrame(frame, "Value of e",300,20,100,20);
-
-        JTextField fieldE = new JTextField();
-        frame.add(fieldE);
-        fieldE.setVisible(true);
-        fieldE.setBounds(300, 50, 200, 60);
-        fieldE.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
-        fieldE.setForeground(new Color(0x00FF00));
-        fieldE.setBackground(Color.black);
-        fieldE.setCaretColor(Color.white);
+        addLabelToFrame(frame, "2<length<2048", 55, 25, 140, 20);
+        addLabelToFrame(frame, "Bit length of primes", 55, 5, 200, 20);
+        addLabelToFrame(frame, "Value of e:",310,20,100,20);
+        addLabelToFrame(frame, "N: ",550,20,100,20);
+        addLabelToFrame(frame, "Given Message: ",40, 210, 140, 50);
+        addLabelToFrame(frame, "Decrypted Message: ",40, 340, 200, 50);
+        addLabelToFrame(frame, "length%32 != 1",55, 95, 200, 50);
 
         JTextField fieldPrimeLength = new JTextField();
         frame.add(fieldPrimeLength);
-        fieldPrimeLength.setVisible(true);
         fieldPrimeLength.setBounds(55, 50, 170, 60);
         fieldPrimeLength.setFont(new Font("Source Sans Pro Black", Font.BOLD, 20));
         fieldPrimeLength.setForeground(new Color(0x00FF00));
         fieldPrimeLength.setBackground(Color.black);
         fieldPrimeLength.setCaretColor(Color.white);
 
-        JTextField fieldN = new JTextField();
+        JTextField fieldE = new JTextField();
+        frame.add(fieldE);
+        fieldE.setBounds(280, 50, 200, 60);
+        fieldE.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
+        fieldE.setForeground(new Color(0x00FF00));
+        fieldE.setBackground(Color.black);
+        fieldE.setCaretColor(Color.white);
 
-        JButton buttonPrimeLength = new JButton("Submit");
-        buttonPrimeLength.addActionListener(new ActionListener() {
+        JTextField fieldN = new JTextField();
+        frame.add(fieldN);
+        fieldN.setVisible(false);
+        fieldN.setEditable(false);
+        fieldN.setBounds(530, 50, 250, 60);
+        fieldN.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
+        fieldN.setForeground(new Color(0x00FF00));
+        fieldN.setBackground(Color.black);
+        fieldN.setCaretColor(Color.white);
+
+        JTextField fieldToDecrypt = new JTextField();
+        frame.add(fieldToDecrypt);
+        fieldToDecrypt.setBounds(40, 250, 700, 50);
+        fieldToDecrypt.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
+        fieldToDecrypt.setForeground(new Color(0x00FF00));
+        fieldToDecrypt.setBackground(Color.black);
+        fieldToDecrypt.setCaretColor(Color.white);
+
+        JTextField decryptedMessageField = new JTextField();
+        frame.add(decryptedMessageField);
+        decryptedMessageField.setBounds(40, 380, 700, 50);
+        decryptedMessageField.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
+        decryptedMessageField.setForeground(new Color(0x00FF00));
+        decryptedMessageField.setBackground(Color.black);
+        decryptedMessageField.setCaretColor(Color.white);
+
+        JButton valuesButton = new JButton("Submit values");
+        frame.add(valuesButton);
+        valuesButton.setFocusable(false);
+        valuesButton.setBounds(175, 135, 150, 40);
+        valuesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 if (fieldPrimeLength.getText().length() != 0 && fieldPrimeLength.getText().length() < 5 && fieldE.getText().length() != 0) {
@@ -46,16 +75,38 @@ public class App {
                         return;
                     }
 
-                    buttonPrimeLength.setEnabled(false);
+                    valuesButton.setEnabled(false);
                     fieldPrimeLength.setEditable(false);
+                    fieldE.setEditable(false);
 
                     // continue calculations for RSA
-                    BigInteger p;
-                    BigInteger q;
-                    BigInteger N;
-                    BigInteger Fi;
-                    BigInteger e;
-                    BigInteger d;
+                    BigInteger p = AppContainer.generatePrime(Integer.parseInt(length));
+                    BigInteger q = AppContainer.generatePrime(Integer.parseInt(length));
+                    BigInteger N = p.multiply(q);
+                    BigInteger Fi = p.subtract(BigInteger.valueOf(1)).multiply(q.subtract(BigInteger.valueOf(1)));
+                    BigInteger e = new BigInteger(strE);
+                    for (; e.compareTo(Fi) < 0; e = e.add(new BigInteger("1"))) {
+                        if(AppContainer.isPrime(e,128) && !GeneratorDecryptor.isDivisible(Fi,e)){
+                            fieldE.setText(String.valueOf(e));
+                            break;
+                        }
+                    }
+                    fieldN.setText(String.valueOf(N));
+                    fieldN.setVisible(true);
+                    BigInteger d = AppContainer.findD(e, Fi);
+
+                    JButton decryptButton = new JButton("Decrypt!");
+                    frame.add(decryptButton);
+                    decryptButton.setFocusable(false);
+                    decryptButton.setBounds(340, 305, 90, 40);
+                    decryptButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent decryptionEvent) {
+                            System.out.println("Pressed Decrypt button");
+                            String decryptedStr = AppContainer.decrypt(d,N,fieldToDecrypt.getText());
+                            decryptedMessageField.setText(decryptedStr);
+                        }
+                    });
                 } else {
                     alert();
                 }
@@ -67,10 +118,9 @@ public class App {
                 fieldE.setText("");
             }
         });
-        buttonPrimeLength.setFocusable(false);
-        buttonPrimeLength.setBounds(65, 120, 150, 40);
 
-        frame.add(buttonPrimeLength);
+
+
 
         frame.setSize(800, 600);
         frame.setTitle("RSA");
@@ -90,4 +140,5 @@ public class App {
 
         frame.add(label);
     }
+
 }
