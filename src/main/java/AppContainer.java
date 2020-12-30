@@ -51,7 +51,8 @@ public class AppContainer {
         }
         return a;
     }
-    protected static BigInteger generatePrime(final int length) {
+    protected static BigInteger generatePrime(int length) {
+        if(length%32==1) length++;
         BigInteger p = generatePrimeCandidate(length);
         while (!isPrime(p, 128)) {
             p = generatePrimeCandidate(length);
@@ -87,5 +88,12 @@ public class AppContainer {
             decryptedString.append((char)(decryptedNum.intValue()));
         }
         return decryptedString.toString();
+    }
+    protected static boolean isDivisible(BigInteger number,BigInteger divisor){
+        BigInteger quotient = number.divide(divisor);
+        if(number.subtract(divisor.multiply(quotient)).equals(BigInteger.valueOf(0))){
+            return true;
+        }
+        else return false;
     }
 }

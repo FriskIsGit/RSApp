@@ -58,10 +58,11 @@ public class App {
         decryptedMessageField.setBackground(Color.black);
         decryptedMessageField.setCaretColor(Color.white);
 
-        JButton valuesButton = new JButton("Submit values");
+        JButton valuesButton = new JButton("Submit values!");
         frame.add(valuesButton);
         valuesButton.setFocusable(false);
-        valuesButton.setBounds(175, 135, 150, 40);
+        valuesButton.setBounds(175, 135, 160, 40);
+        valuesButton.setFont(new Font("Kalinga",Font.BOLD,16));
         valuesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -86,7 +87,7 @@ public class App {
                     BigInteger Fi = p.subtract(BigInteger.valueOf(1)).multiply(q.subtract(BigInteger.valueOf(1)));
                     BigInteger e = new BigInteger(strE);
                     for (; e.compareTo(Fi) < 0; e = e.add(new BigInteger("1"))) {
-                        if(AppContainer.isPrime(e,128) && !GeneratorDecryptor.isDivisible(Fi,e)){
+                        if(AppContainer.isPrime(e,128) && !AppContainer.isDivisible(Fi,e)){
                             fieldE.setText(String.valueOf(e));
                             break;
                         }
@@ -97,14 +98,31 @@ public class App {
 
                     JButton decryptButton = new JButton("Decrypt!");
                     frame.add(decryptButton);
+                    decryptButton.setEnabled(true);
                     decryptButton.setFocusable(false);
                     decryptButton.setBounds(340, 305, 90, 40);
                     decryptButton.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent decryptionEvent) {
-                            System.out.println("Pressed Decrypt button");
-                            String decryptedStr = AppContainer.decrypt(d,N,fieldToDecrypt.getText());
-                            decryptedMessageField.setText(decryptedStr);
+                            if(fieldToDecrypt.getText().length()!=0) {
+                                String decryptedStr = AppContainer.decrypt(d, N, fieldToDecrypt.getText());
+                                decryptedMessageField.setText(decryptedStr);
+                            }
+                        }
+                    });
+
+                    JButton locks = new JButton("Change locks");
+                    frame.add(locks);
+                    locks.setFocusable(false);
+                    locks.setBounds(510,475,220,50);
+                    locks.addActionListener(new ActionListener(){
+                        @Override
+                        public void actionPerformed(ActionEvent lockEvent){
+                            fieldToDecrypt.setText("");
+                            fieldN.setText("");
+                            valuesButton.setEnabled(true);
+                            fieldPrimeLength.setEditable(true);
+                            fieldE.setEditable(true);
                         }
                     });
                 } else {
