@@ -85,10 +85,7 @@ public class App {
 
                     String regex = "[0-9]+";
                     if (!length.matches(regex) || !strE.matches(regex)) {
-                        //alert()
-                        JOptionPane.showMessageDialog(frame, "You made a mistake boi");
-                        fieldPrimeLength.setText("");
-                        fieldE.setText("");
+                        alert();
                         return;
                     }
 
@@ -117,10 +114,13 @@ public class App {
                     d = AppContainer.findD(e, Fi);
 
                 }else{
-                    JOptionPane.showMessageDialog(frame, "You made a mistake boi");
-                    fieldPrimeLength.setText("");
-                    fieldE.setText("");
+                    alert();
                 }
+            }
+            protected void alert(){
+                JOptionPane.showMessageDialog(frame, "You made a mistake boi");
+                fieldPrimeLength.setText("");
+                fieldE.setText("");
             }
         });
 
