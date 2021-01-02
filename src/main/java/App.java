@@ -5,6 +5,14 @@ import java.awt.event.ActionListener;
 import java.math.BigInteger;
 
 public class App {
+    private BigInteger p;
+    private BigInteger q;
+    private BigInteger N;
+    private BigInteger Fi;
+    private BigInteger e;
+    private BigInteger d;
+    private String length;
+    private String strE;
     public void display() {
         JFrame frame = new JFrame();
 
@@ -44,6 +52,7 @@ public class App {
 
         JTextField fieldToDecrypt = new JTextField();
         frame.add(fieldToDecrypt);
+        fieldToDecrypt.setVisible(false);
         fieldToDecrypt.setBounds(40, 250, 700, 50);
         fieldToDecrypt.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
         fieldToDecrypt.setForeground(new Color(0x00FF00));
@@ -52,11 +61,15 @@ public class App {
 
         JTextField decryptedMessageField = new JTextField();
         frame.add(decryptedMessageField);
+        decryptedMessageField.setVisible(false);
         decryptedMessageField.setBounds(40, 380, 700, 50);
         decryptedMessageField.setFont(new Font("Source Sans Pro Black", Font.ITALIC, 20));
         decryptedMessageField.setForeground(new Color(0x00FF00));
         decryptedMessageField.setBackground(Color.black);
         decryptedMessageField.setCaretColor(Color.white);
+
+        JButton decryptButton = new JButton("Decrypt!");
+        JButton locksButton = new JButton("Change locks");
 
         JButton valuesButton = new JButton("Submit values!");
         frame.add(valuesButton);
@@ -67,78 +80,83 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent event) {
                 if (fieldPrimeLength.getText().length() != 0 && fieldPrimeLength.getText().length() < 5 && fieldE.getText().length() != 0) {
-                    String length = fieldPrimeLength.getText();
-                    String strE = fieldE.getText();
+                    length = fieldPrimeLength.getText();
+                    strE = fieldE.getText();
 
                     String regex = "[0-9]+";
                     if (!length.matches(regex) || !strE.matches(regex)) {
-                        alert();
+                        //alert()
+                        JOptionPane.showMessageDialog(frame, "You made a mistake boi");
+                        fieldPrimeLength.setText("");
+                        fieldE.setText("");
                         return;
                     }
 
+                    //consequences
                     valuesButton.setEnabled(false);
+                    decryptButton.setEnabled(true);
+                    locksButton.setEnabled(true);
                     fieldPrimeLength.setEditable(false);
                     fieldE.setEditable(false);
 
                     // continue calculations for RSA
-                    BigInteger p = AppContainer.generatePrime(Integer.parseInt(length));
-                    BigInteger q = AppContainer.generatePrime(Integer.parseInt(length));
-                    BigInteger N = p.multiply(q);
-                    BigInteger Fi = p.subtract(BigInteger.valueOf(1)).multiply(q.subtract(BigInteger.valueOf(1)));
-                    BigInteger e = new BigInteger(strE);
+                    p = AppContainer.generatePrime(Integer.parseInt(length));
+                    q = AppContainer.generatePrime(Integer.parseInt(length));
+                    N = p.multiply(q);
+                    Fi = p.subtract(BigInteger.valueOf(1)).multiply(q.subtract(BigInteger.valueOf(1)));
+                    e = new BigInteger(strE);
                     for (; e.compareTo(Fi) < 0; e = e.add(new BigInteger("1"))) {
-                        if(AppContainer.isPrime(e,128) && !AppContainer.isDivisible(Fi,e)){
+                        if (AppContainer.isPrime(e, 128) && !AppContainer.isDivisible(Fi, e)) {
                             fieldE.setText(String.valueOf(e));
                             break;
                         }
                     }
                     fieldN.setText(String.valueOf(N));
                     fieldN.setVisible(true);
-                    BigInteger d = AppContainer.findD(e, Fi);
+                    fieldToDecrypt.setVisible(true);
+                    d = AppContainer.findD(e, Fi);
 
-                    JButton decryptButton = new JButton("Decrypt!");
-                    frame.add(decryptButton);
-                    decryptButton.setEnabled(true);
-                    decryptButton.setFocusable(false);
-                    decryptButton.setBounds(340, 305, 90, 40);
-                    decryptButton.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent decryptionEvent) {
-                            if(fieldToDecrypt.getText().length()!=0) {
-                                String decryptedStr = AppContainer.decrypt(d, N, fieldToDecrypt.getText());
-                                decryptedMessageField.setText(decryptedStr);
-                            }
-                        }
-                    });
-
-                    JButton locks = new JButton("Change locks");
-                    frame.add(locks);
-                    locks.setFocusable(false);
-                    locks.setBounds(510,475,220,50);
-                    locks.addActionListener(new ActionListener(){
-                        @Override
-                        public void actionPerformed(ActionEvent lockEvent){
-                            fieldToDecrypt.setText("");
-                            fieldN.setText("");
-                            valuesButton.setEnabled(true);
-                            fieldPrimeLength.setEditable(true);
-                            fieldE.setEditable(true);
-                        }
-                    });
-                } else {
-                    alert();
+                }else{
+                    JOptionPane.showMessageDialog(frame, "You made a mistake boi");
+                    fieldPrimeLength.setText("");
+                    fieldE.setText("");
                 }
-            }
-
-            private void alert() {
-                JOptionPane.showMessageDialog(frame, "You made a mistake boi");
-                fieldPrimeLength.setText("");
-                fieldE.setText("");
             }
         });
 
 
+        //decryptButton
+        frame.add(decryptButton);
+        decryptButton.setEnabled(false);
+        decryptButton.setFocusable(false);
+        decryptButton.setBounds(340, 305, 90, 40);
+        decryptButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent decryptionEvent) {
+                if(fieldToDecrypt.getText().length()!=0) {
+                    decryptedMessageField.setVisible(true);
+                    String decryptedStr = AppContainer.decrypt(d, N, fieldToDecrypt.getText());
+                    decryptedMessageField.setText(decryptedStr);
+                }
+            }
+        });
 
+
+        //locksButton
+        frame.add(locksButton);
+        locksButton.setEnabled(false);
+        locksButton.setFocusable(false);
+        locksButton.setBounds(510,475,220,50);
+        locksButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent lockEvent){
+                fieldToDecrypt.setText("");
+                fieldN.setText("");
+                valuesButton.setEnabled(true);
+                fieldPrimeLength.setEditable(true);
+                fieldE.setEditable(true);
+            }
+        });
 
         frame.setSize(800, 600);
         frame.setTitle("RSA");
@@ -149,14 +167,12 @@ public class App {
     }
 
     public void addLabelToFrame(JFrame frame, String text, int x, int y, int width, int height) {
-        JLabel label = new JLabel();
-        label.setVisible(true);
-        label.setFont(new Font("MV Boli", Font.BOLD, 17));
-        label.setForeground(Color.cyan);
-        label.setText(text);
-        label.setBounds(x, y, width, height);
-
-        frame.add(label);
+            JLabel label = new JLabel();
+            label.setVisible(true);
+            label.setFont(new Font("MV Boli", Font.BOLD, 17));
+            label.setForeground(Color.cyan);
+            label.setText(text);
+            label.setBounds(x, y, width, height);
+            frame.add(label);
     }
-
 }
