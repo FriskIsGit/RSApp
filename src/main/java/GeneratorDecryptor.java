@@ -17,10 +17,19 @@ public class GeneratorDecryptor {
             BigInteger N = p.multiply(q);
             BigInteger Fi = p.subtract(BigInteger.valueOf(1)).multiply(q.subtract(BigInteger.valueOf(1)));
             BigInteger e = new BigInteger(eDisplacement);
-            for (; e.compareTo(Fi) < 0; e = e.add(new BigInteger("1"))) {
+
+            String val = "1";
+            if(e.compareTo(Fi) >= 0){
+                e=Fi;
+                val = "-1";
+            }
+
+            for (long start = System.currentTimeMillis();; e = e.add(new BigInteger(val))) {
                 //choosing latter for security purposes <->
                 if(isPrime(e,128) && !isDivisible(Fi,e)){
                     break;
+                }else if((System.currentTimeMillis()-start)>10000){
+                    System.out.println("Choose a smaller e");
                 }
                 //if (getBigGCD(e, Fi).equals(BigInteger.valueOf(1))) break;
             }

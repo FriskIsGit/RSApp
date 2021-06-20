@@ -84,9 +84,13 @@ public class AppContainer {
         //remember about cmd
         String parsed[] = msg.split(",");
         for(int i = 0; i<parsed.length;i++){
-            BigInteger base = new BigInteger(parsed[i]);
-            BigInteger decryptedNum = base.modPow(d,N);
-            decryptedString.append((char)(decryptedNum.intValue()));
+            try {
+                BigInteger base = new BigInteger(parsed[i]);
+                BigInteger decryptedNum = base.modPow(d, N);
+                decryptedString.append((char) (decryptedNum.intValue()));
+            }catch(Exception anyBigIntegerException){
+                return "Error";
+            }
         }
         return decryptedString.toString();
     }
